@@ -12,16 +12,18 @@
         <esl-card class="flex flex-col align-items-center">
           <img src="{card.imageUrl}" alt="{card.text}">
           <div class="full-width">
-            <div><span class="fnt-bold">Name:</span> {card.name}</div>
-            <div><span class="fnt-bold">Text:</span> {card.text}</div>
-            <div><span class="fnt-bold">Set name:</span> {card.set.name}</div>
-            <div><span class="fnt-bold">Type:</span> {card.type}</div>
+            <div><span class="fnt-bold">Name: </span>{card.name}</div>
+            <div><span class="fnt-bold">Text: </span>{card.text}</div>
+            <div><span class="fnt-bold">Set name: </span>{card.set.name}</div>
+            <div><span class="fnt-bold">Type: </span>{card.type}</div>
           </div>
         </esl-card>
       </m-col>
     </m-row>
     <m-row if="{state.loading}" center>
-      <m-col class="pad-all-lg"><m-loader loading class="txt-lg"></m-loader></m-col>
+      <m-col class="pad-all-lg">
+        <m-loader loading class="txt-lg"></m-loader>
+      </m-col>
     </m-row>
   </m-container>
 
@@ -42,20 +44,20 @@
         // Debounce search to avoid unnecessary requests
         this.searchByName = debounce(this.searchByName);
 
-        // Infinite scroll for fetching more cards
+        // Set up infinite scroll for fetching cards
         let prevPageYOffset = 0;
         let readyForNextPage = true;
         document.addEventListener('scroll', e => {
           const scrollingDown = prevPageYOffset - window.pageYOffset < 0;
-          const crossingThreshold = window.innerHeight + window.scrollY >= document.body.scrollHeight - 600; // 600 = about 1 row
+          const crossingThreshold = window.innerHeight + window.scrollY >= document.body.scrollHeight - 600; // 600 = about 1 row offset
 
           if (readyForNextPage && scrollingDown && crossingThreshold) {
             readyForNextPage = false;
-            this.fetchCards().then(cards => {
-              this.state.filters.page = this.state.filters.page + 1;
-              this.state.cards.push(...cards);
-              this.update()
-            })
+            this.fetchCards()
+              .then(cards => {
+                this.state.cards.push(...cards);
+                this.update()
+              })
               .finally(() => readyForNextPage = true);
           }
 
@@ -65,7 +67,7 @@
 
       searchByName(e) {
         this.state.filters.name = e.target.value;
-        this.state.filters.page = 1;
+        this.state.filters.page = 1; // Reset pagination
         this.fetchCards().then(cards => this.update({cards}))
       },
 
@@ -73,7 +75,10 @@
         this.update({loading: true});
         // Using proxy endpoint because ESL API doesn't seem to support CORS
         return retch.get(`${location.origin}/api/cards`, {query: this.state.filters})
-          .then(data => data.cards)
+          .then(data => {
+            this.state.filters.page = this.state.filters.page + 1;
+            return data.cards
+          })
           .catch(error => this.update({error}))
           .finally(() => this.update({loading: false}))
       }
