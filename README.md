@@ -16,6 +16,7 @@ Note that the loading indicator is there, but responses come back so quickly you
 _Pre-reqs:_ [Node.js](https://nodejs.org/en/)
 
 1. `git clone https://github.com/jfbrennan/hs-coding-exercise.git`
+1. `cd hs-coding-exercise`
 1. `npm install`
 1. `npm start`
 1. Go to http://localhost:3000
