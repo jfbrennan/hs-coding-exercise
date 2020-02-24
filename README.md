@@ -8,7 +8,7 @@ The application is built with Express and Handlebars on the back-end and [Riot.j
 
 The Elder Scrolls API doesn't appear to support CORS, so Express is also being used as a proxy.
 
-Riot, M-, and RETCHful are all very small and simple libraries that don't require an install or build step. Also, in the interest of time I didn't bother minifying the little JavaScript that makes up the app.
+Riot, M-, and RETCHful are all very simple libraries that don't require an install or build step. Also, in the interest of time I didn't bother minifying the little JavaScript that makes up the app.
 
 Note that the loading indicator is there, but responses come back so quickly you might miss it.
 
