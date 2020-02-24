@@ -1,4 +1,3 @@
-<!--suppress UnreachableCodeJS, ThisExpressionReferencesGlobalObjectJS, JSAnnotator -->
 <esl-cards>
   <header class="pos-sticky pad-all-md">
     <h1 class="txt-center">The Elder Scrolls: Legends</h1>
@@ -7,10 +6,10 @@
     </fieldset>
   </header>
   <m-container>
-    <h4 if="{error}" class="txt-center">{error}</h4>
+    <h4 if="{state.error}" class="txt-center">{error}</h4>
     <m-row>
-      <m-col each="{card in cards}" span="sm-12">
-        <esl-card class="flex align-items-center">
+      <m-col each="{card in state.cards}" span="sm-12">
+        <esl-card class="flex flex-col align-items-center">
           <img src="{card.imageUrl}" alt="{card.text}">
           <div class="full-width">
             <div><span class="fnt-bold">Name:</span> {card.name}</div>
@@ -21,91 +20,90 @@
         </esl-card>
       </m-col>
     </m-row>
-    <m-row if="{loading}" center>
+    <m-row if="{state.loading}" center>
       <m-col class="pad-all-lg"><m-loader loading class="txt-lg"></m-loader></m-col>
     </m-row>
   </m-container>
 
   <script>
-    // Properties
-    this.loading = false;
-    this.error = null;
-    this.cards = [];
-    this.filters = {
-      page: 1,
-      pageSize: 20,
-      name: ''
-    };
+    export default {
+      // Initial state
+      state: {
+        loading: false,
+        error: null,
+        cards: [],
+        filters: {page: 1, pageSize: 20, name: ''}
+      },
 
-    // Methods
-    searchByName(e) {
-      this.filters.name = e.target.value;
-      this.filters.page = 1;
-      this.fetchCards().then(cards => this.update({cards}))
+      onMounted() {
+        // Fetch and render initial set of cards
+        this.fetchCards().then(cards => this.update({cards}));
+
+        // Debounce search to avoid unnecessary requests
+        this.searchByName = debounce(this.searchByName);
+
+        // Infinite scroll for fetching more cards
+        let prevPageYOffset = 0;
+        let readyForNextPage = true;
+        document.addEventListener('scroll', e => {
+          const scrollingDown = prevPageYOffset - window.pageYOffset < 0;
+          const crossingThreshold = window.innerHeight + window.scrollY >= document.body.scrollHeight - 600; // 600 = about 1 row
+
+          if (readyForNextPage && scrollingDown && crossingThreshold) {
+            readyForNextPage = false;
+            this.fetchCards().then(cards => {
+              this.state.filters.page = this.state.filters.page + 1;
+              this.state.cards.push(...cards);
+              this.update()
+            })
+              .finally(() => readyForNextPage = true);
+          }
+
+          prevPageYOffset = window.pageYOffset;
+        })
+      },
+
+      searchByName(e) {
+        this.state.filters.name = e.target.value;
+        this.state.filters.page = 1;
+        this.fetchCards().then(cards => this.update({cards}))
+      },
+
+      fetchCards() {
+        this.update({loading: true});
+        // Using proxy endpoint because ESL API doesn't seem to support CORS
+        return retch.get(`${location.origin}/api/cards`, {query: this.state.filters})
+          .then(data => data.cards)
+          .catch(error => this.update({error}))
+          .finally(() => this.update({loading: false}))
+      }
     }
-
-    fetchCards() {
-      this.update({loading: true});
-      // Using proxy endpoint because ESL API doesn't seem to support CORS
-      return retch.get('http://localhost:3000/api/cards', {query: this.filters})
-        .then(data => data.cards)
-        .catch(error => this.update({error}))
-        .finally(() => this.update({loading: false}))
-    }
-
-    // Lifecycle events
-    this.on('mount', () => {
-      // Fetch and render initial set of cards
-      this.fetchCards().then(cards => this.update({cards}));
-
-      // Debounce search to avoid unnecessary requests
-      this.searchByName = debounce(this.searchByName);
-
-      // Infinite scroll for fetching more cards
-      let prevPageYOffset = 0;
-      let readyForNextPage = true;
-      document.addEventListener('scroll', e => {
-        const scrollingDown = prevPageYOffset - window.pageYOffset < 0;
-        const crossingThreshold = window.innerHeight + window.scrollY >= document.body.scrollHeight - 600; // 600 = about 1 row
-
-        if (readyForNextPage && scrollingDown && crossingThreshold) {
-          readyForNextPage = false;
-          this.fetchCards().then(cards => {
-            this.filters.page = this.filters.page + 1;
-            this.cards.push(...cards);
-            this.update()
-          })
-          .finally(() => readyForNextPage = true);
-        }
-
-        prevPageYOffset = window.pageYOffset;
-      })
-    })
   </script>
 
   <style>
-    /* Riot components use the :scope pseudo-class to refer to the tag, i.e. esl-cards */
-    :scope header {
+    /*
+      Riot scopes these styles to this component and uses
+      the :host pseudo-class to refer to the tag, i.e. esl-cards
+    */
+    :host { display: block }
+
+    header {
       background-color: rgba(255, 255, 255, 0.7);
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
     }
 
-    :scope input {
+    input {
       max-width: 400px;
       margin: 0 auto;
     }
 
-    :scope esl-card {
-      flex-direction: column;
-    }
-
-    :scope esl-card img {
+    esl-card > img {
       height: 400px;
     }
 
-    :scope esl-card > img,
-    :scope esl-card > div {
+    esl-card > img,
+    esl-card > div {
       max-width: 300px;
       min-width: 100px;
     }
