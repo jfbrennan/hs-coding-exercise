@@ -10,12 +10,13 @@ The Elder Scrolls API doesn't appear to support CORS, so Express is also being u
 
 Riot, M-, and RETCHful are all very simple libraries that don't require an install or build step. Also, in the interest of time I didn't bother minifying the little JavaScript that makes up the app.
 
-Note that the loading indicator is there, but responses come back so quickly you might miss it.
+Note: The loading indicator is there, but responses come back so quickly it's easy to miss. I also didn't take the time to create placeholders for the images, so on a slow connection there is some jank in the layout. This is typcially solved with hard `img` dimensions or a placeholder element that gets swapped out once the image has loaded.
 
 ### Running locally
 _Pre-reqs:_ [Node.js](https://nodejs.org/en/)
 
 1. `git clone https://github.com/jfbrennan/hs-coding-exercise.git`
+1. `cd hs-coding-exercise`
 1. `npm install`
 1. `npm start`
 1. Go to http://localhost:3000
