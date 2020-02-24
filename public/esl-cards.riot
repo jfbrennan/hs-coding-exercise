@@ -6,7 +6,7 @@
     </fieldset>
   </header>
   <m-container>
-    <h4 if="{state.error}" class="txt-center">{error}</h4>
+    <h4 if="{state.error}" class="txt-center">{state.error}</h4>
     <m-row>
       <m-col each="{card in state.cards}" span="sm-12">
         <esl-card class="flex flex-col align-items-center">
