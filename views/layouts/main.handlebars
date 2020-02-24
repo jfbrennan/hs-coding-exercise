@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HS Coding Exercise</title>
+  <link rel="stylesheet" href="https://unpkg.com/m-@1.0.0-beta.15/dist/min.css">
+  <script defer src="https://unpkg.com/m-@1.0.0-beta.15/dist/min.js"></script>
+</head>
+<body>
+{{{body}}}
+<script src="https://unpkg.com/retchful@1.0.0-beta/dist/min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.13.2/riot+compiler.min.js"></script>
+<script src="esl-cards.riot" type="riot/tag"></script>
+<script>
+  riot.compile(() => riot.mount('*'));
+
+  // Utility function needed for debouncing keyup
+  function debounce(fn) {
+    let timeoutID;
+    return function () {
+      const args = arguments;
+      clearTimeout(timeoutID);
+      timeoutID = setTimeout(() => fn(...args), 250);
+    }
+  }
+</script>
+</body>
+</html>
