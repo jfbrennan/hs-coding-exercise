@@ -1,10 +1,8 @@
 <esl-cards>
-  <header class="pos-sticky pad-all-md">
-    <h1 class="txt-center">The Elder Scrolls: Legends</h1>
-    <fieldset>
-      <input onkeyup="{searchByName}" type="text" placeholder="Search by name" autofocus>
-    </fieldset>
-  </header>
+  <h1 class="txt-center">The Elder Scrolls: Legends</h1>
+  <fieldset class="pos-sticky pad-all-md">
+    <input onkeyup="{searchByName}" type="text" placeholder="Search by name" autofocus>
+  </fieldset>
   <m-container>
     <h4 if="{state.error}" class="txt-center">{state.error}</h4>
     <m-row>
@@ -92,7 +90,7 @@
     */
     :host { display: block }
 
-    header {
+    h1, fieldset {
       background-color: rgba(255, 255, 255, 0.7);
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
