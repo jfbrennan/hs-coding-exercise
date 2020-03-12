@@ -7,14 +7,19 @@
     <h4 if="{state.error}" class="txt-center">{state.error}</h4>
     <m-row>
       <m-col each="{card in state.cards}" span="sm-12">
-        <esl-card class="flex flex-col align-items-center">
-          <img src="{card.imageUrl}" alt="{card.text}">
-          <div class="full-width">
+        <esl-card class="flex flex-col align-items-center pos-relative">
+          <esl-card-img-placeholder class="flex align-items-center justify-content-center mar-b-md">
+            <m-loader loading></m-loader>
+          </esl-card-img-placeholder>
+          <img hidden onload="{showImage}" src="{card.imageUrl}" alt="{card.text || card.name}">
+          <m-icon hidden onclick="{e => toggleFavorite(e, card)}" name="star" class="pos-absolute pointer"></m-icon>
+          <esl-card-info class="full-width mar-b-xl">
             <div><span class="fnt-bold">Name: </span>{card.name}</div>
             <div><span class="fnt-bold">Text: </span>{card.text}</div>
             <div><span class="fnt-bold">Set name: </span>{card.set.name}</div>
             <div><span class="fnt-bold">Type: </span>{card.type}</div>
-          </div>
+            <div><span class="fnt-bold">Favorite: </span>{card.fav ? 'yes' : 'no'}</div>
+          </esl-card-info>
         </esl-card>
       </m-col>
     </m-row>
@@ -27,11 +32,12 @@
 
   <script>
     export default {
-      // Initial state
+      // Setup initial state
       state: {
         loading: false,
         error: null,
         cards: [],
+        favorites: JSON.parse(localStorage.getItem('favorite_cards')) || [],
         filters: {page: 1, pageSize: 20, name: ''}
       },
 
@@ -58,7 +64,6 @@
               })
               .finally(() => readyForNextPage = true);
           }
-
           prevPageYOffset = window.pageYOffset;
         })
       },
@@ -75,10 +80,25 @@
         return retch.get(`${location.origin}/api/cards`, {query: this.state.filters})
           .then(data => {
             this.state.filters.page = this.state.filters.page + 1;
+            data.cards.forEach(card => card.fav = this.state.favorites.includes(card.id));
             return data.cards
           })
           .catch(error => this.update({error}))
           .finally(() => this.update({loading: false}))
+      },
+
+      showImage(e) {
+        e.target.previousElementSibling.hidden = true; // Hide placeholder img
+        e.target.nextElementSibling.hidden = false; // Show fav icon
+        e.target.hidden = false; // Show img
+      },
+
+      toggleFavorite(e, card) {
+        const i = this.state.favorites.indexOf(card.id);
+        i < 0 ? this.state.favorites.push(card.id) : this.state.favorites.splice(i, 1);
+        card.fav = i < 0;
+        localStorage.setItem('favorite_cards', JSON.stringify(this.state.favorites));
+        this.update();
       }
     }
   </script>
@@ -96,17 +116,31 @@
       backdrop-filter: blur(20px);
     }
 
+    fieldset { z-index: 1 }
+
     input {
       max-width: 400px;
       margin: 0 auto;
+    }
+
+    esl-card-img-placeholder {
+      border: 1px solid lightgrey;
+      border-radius: 3px;
+      width: 250px;
+      height: 400px;
     }
 
     esl-card > img {
       height: 400px;
     }
 
+    esl-card m-icon[name=star] {
+      top: 6px;
+      right: 6px;
+    }
+
     esl-card > img,
-    esl-card > div {
+    esl-card-info {
       max-width: 300px;
       min-width: 100px;
     }

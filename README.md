@@ -10,7 +10,7 @@ The Elder Scrolls API doesn't appear to support CORS, so Express is also being u
 
 Riot, M-, and RETCHful are all very simple libraries that don't require an install or build step. Also, in the interest of time I didn't bother minifying the little JavaScript that makes up the app.
 
-Note: The loading indicator is there, but responses come back so quickly it's easy to miss. I also didn't take the time to create placeholders for the images, so on a slow connection there is some jank in the layout. This is typcially solved with hard `img` dimensions or a placeholder element that gets swapped out once the image has loaded.
+Note: Yes, the loading indicators are there, but responses come back so quickly it's easy to miss.
 
 ### Running locally
 _Pre-reqs:_ [Node.js](https://nodejs.org/en/)
